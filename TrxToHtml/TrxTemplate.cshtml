@@ -1,0 +1,294 @@
+﻿@using TrxToHtml
+@model TrxToHtml.TestRun
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Execution Report: @Model.Times.start</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+
+    <style>
+        .progress {
+            background-color: red;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <a id="top"></a>
+
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#total">Totals</a></li>
+                        <li><a href="#summary">Summary</a></li>
+                        <li><a href="#details">Details</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="row">
+
+            <div class="jumbotron">
+                <table class="table" id="#totals">
+                    <tr>
+                        <th>Percent</th>
+                        <th style="width: 350px">Status</th>
+                        <th>Total tests</th>
+                        <th>Passed</th>
+                        <th>Slow</th>
+                        <th>Failed</th>
+                        <th>Time taken</th>
+                    </tr>
+                    <tr>
+                        @{
+                            var totalPassedPercent = Math.Round(((decimal)Model.ResultSummary.Counters.passed / (decimal)Model.ResultSummary.Counters.total) * 100, 2);
+                            var totalFailedPercent = Math.Round(((decimal)Model.ResultSummary.Counters.failed / (decimal)Model.ResultSummary.Counters.total) * 100, 2);
+                            var totalInconclusivePercent = Math.Round(((decimal)Model.ResultSummary.Counters.inconclusive / (decimal)Model.ResultSummary.Counters.total) * 100, 2);
+                            var timeTaken = Model.Times.finish.Subtract(Model.Times.start).ToString(@"hh\:mm\:ss");
+                            var codeBase = Model.TestDefinitions.Select(m => m.TestMethod.codeBase).Distinct();
+                        }
+                        <td>@totalPassedPercent%</td>
+                        <td style="width: 350px">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" style="width:@totalPassedPercent%">
+                                </div>
+                                <div class="progress-bar progress-bar-warning" role="progressbar" style="width:@totalInconclusivePercent%">
+                                </div>
+                                <div class="progress-bar progress-bar-danger" role="progressbar" style="width:@totalFailedPercent%">
+                                </div>
+                            </div>
+
+                        </td>
+                        <td>@Model.ResultSummary.Counters.total</td>
+                        <td>@Model.ResultSummary.Counters.passed</td>
+                        <td>@Model.ResultSummary.Counters.inconclusive</td>
+                        <td>@Model.ResultSummary.Counters.failed</td>
+                        <td>@timeTaken</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <small>
+                                <b>Test binaries:</b> <br />
+                                @{
+                                    foreach (var testBinary in codeBase)
+                                    {
+                                        @testBinary
+                                    }
+                                }
+                            </small>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <table class="table table-hover table-condensed" id="#summary">
+                <tr>
+                    <th class="col-md-5">Test classes summary</th>
+                    <th class="col-md-1">Percent</th>
+                    <th class="col-md-2">Status</th>
+                    <th class="col-md-1">Total</th>
+                    <th class="col-md-1">Passed</th>
+                    <th class="col-md-1">Slow</th>
+                    <th class="col-md-1">Failed</th>
+                    <th class="col-md-1">Time taken</th>
+                </tr>
+                @{
+                    foreach (var testClass in Model.TestDefinitions.Select(m => m.TestMethod.className).Distinct())
+                    {
+                        <tr>
+                            @{
+                                var passedTestIds = Model.TestDefinitions.Where(m => m.TestMethod.className == testClass).Select(m => m.id);
+                                var testCasesOnClass = Model.Results.Where(m => passedTestIds.Contains(m.testId));
+                                var totalTestCasses = testCasesOnClass.Count();
+                                var passedTestCasses = testCasesOnClass.Where(m => m.outcome == "Passed").Count();
+                                var failedTestCasses = testCasesOnClass.Where(m => m.outcome == "Failed").Count();
+                                var inconclusiveTestCasses = testCasesOnClass.Where(m => m.outcome == "Inconclusive").Count();
+                                var passedPercent = Math.Round(((decimal)passedTestCasses / (decimal)totalTestCasses) * 100, 2);
+                                var failedPercent = Math.Round(((decimal)failedTestCasses / (decimal)totalTestCasses) * 100, 2);
+                                var inconclusivePercent = Math.Round(((decimal)inconclusiveTestCasses / (decimal)totalTestCasses) * 100, 2);
+                                //var classTimeTakenMilliseconds = testCasesOnClass.Sum(m => m.endTime.Subtract(m.startTime).Milliseconds);
+                                var classTimeTakenMilliseconds = testCasesOnClass.Sum(m => m.duration.TimeOfDay.Milliseconds);
+                                var classTimeTaken = TimeSpan.FromMilliseconds(classTimeTakenMilliseconds).ToString(@"hh\:mm\:ss\:fff"); ;
+                            }
+                            <td>
+                                <p><small><a href="#@testClass.Split(',')[0]">@testClass.Split(',')[0]</a></small></p>
+                            </td>
+                            <td>@passedPercent%</td>
+                            <td class="min-width:150px;max-width:150px; width:150px">
+                                @*<div class="progress">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@passedPercent" aria-valuemin="0" aria-valuemax="100" style="width: @passedPercent%">
+                                        </div>
+                                    </div>*@
+
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success" role="progressbar" style="width:@passedPercent%">
+                                    </div>
+                                    <div class="progress-bar progress-bar-warning" role="progressbar" style="width:@inconclusivePercent%">
+                                    </div>
+                                    <div class="progress-bar progress-bar-danger" role="progressbar" style="width:@failedPercent%">
+                                    </div>
+                                </div>
+
+                            </td>
+                            <td>@totalTestCasses</td>
+                            <td>@passedTestCasses</td>
+                            <td>@inconclusiveTestCasses</td>
+                            <td>@failedTestCasses</td>
+                            <td>@classTimeTaken</td>
+                        </tr>
+                                }
+                }
+            </table>
+        </div>
+
+        <h4 id="details">Test class details</h4>
+
+        @foreach (var testClass in Model.TestDefinitions.Select(m => m.TestMethod.className).Distinct())
+        {
+            var TestIds = Model.TestDefinitions.Where(m => m.TestMethod.className == testClass).Select(m => m.id);
+            var testCasesOnClass = Model.Results.Where(m => TestIds.Contains(m.testId));
+            <div class="row">
+                <table class="table" id="#details">
+                    <tr>
+                        <th colspan="6" id="@testClass.Split(',')[0]">@testClass.Split(',')[0]</th>
+                    </tr>
+                    <tr>
+                        <th>Case Id</th>
+                        <th>Method name and Description</th>
+                        <th>Status</th>
+                        <th>Correlation Id</th>
+                    </tr>
+                    @{
+                        foreach (var testResult in testCasesOnClass)
+                        {
+                            var rowClass = "";
+                            if (testResult.outcome == "Failed")
+                            {
+                                rowClass = "danger";
+                            }
+                            else if (testResult.outcome == "Inconclusive")
+                            {
+                                rowClass = "warning";
+                            }
+                            <tr class="@rowClass">
+                                <td>
+                                    <p>
+                                        @{
+                                            uint workItemId = 0;
+                                            if (Model.TestDefinitions.FirstOrDefault(m => m.id == testResult.testId).Workitems != null)
+                                            {
+                                                workItemId = Model.TestDefinitions.FirstOrDefault(m => m.id == testResult.testId).Workitems.Workitem;
+                                            }
+                                        }
+                                        <small><a target="_blank" href='http://msitvstf1:8080/tfs/ECIT/NGVLAgile/_workitems#id=@workItemId&triage=true&fullScreen=true&_a=edit'>@workItemId</a></small>
+                                        @{
+                                            var testTime = testResult.endTime.Subtract(testResult.startTime).ToString(@"mm\:ss\:fff");
+                                        }
+                                        @testTime
+                                    </p>
+                                </td>
+                                <td>
+                                    <p>
+                                        <small>@testResult.testName</small>
+                                    </p>
+                                    <p>
+                                        <small>@Model.TestDefinitions.FirstOrDefault(m => m.id == testResult.testId).Description</small>
+                                    </p>
+                                    <p>
+                                        <small><a href="javascript:void(0);" class="accordion-toggle" data-toggle="collapse" data-target="#@testResult.testName" data-parent="#@testResult.testName">More...</a></small>
+                                    </p>
+                                    <div id="@testResult.testName" class="collapse">
+                                        @{
+                                            if (testResult.Output != null && testResult.Output.Items != null)
+                                            {
+                                                for (int i = 0; i < testResult.Output.Items.Count(); i++)
+                                                {
+                                                    if (testResult.Output.ItemsElementName[i].ToString() == "ErrorInfo")
+                                                    {
+                                                        <p>
+                                                            <small>
+                                                                <b>Message :</b>
+                                                                <span style="white-space: pre-wrap;">
+                                                                    @{
+                                                                        if (testResult.Output.Items[i] != null)
+                                                                        {
+                                                                            @(((TestRunUnitTestResultOutputErrorInfo)testResult.Output.Items[i]).Message)
+                                                                        }
+                                                                    }
+                                                                </span>
+                                                            </small>
+                                                        </p>
+                                                        <p>
+                                                            <small>
+                                                                <b>StackTrace :</b>
+                                                                <span style="white-space: pre-wrap;">
+                                                                    @{
+                                                                        if (testResult.Output.Items[i] != null)
+                                                                        {
+                                                                            @(((TestRunUnitTestResultOutputErrorInfo)testResult.Output.Items[i]).StackTrace)
+                                                                        }
+                                                                    }
+                                                                </span>
+                                                            </small>
+                                                        </p>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <p>
+                                                                                <small>
+                                                                                    <b>@testResult.Output.ItemsElementName[i].ToString() :</b>
+                                                                                    <span style="white-space: pre-wrap;">
+                                                                                        @{
+                                                                                            if (testResult.Output.Items[i] != null)
+                                                                                            {
+                                                                                                @testResult.Output.Items[i]
+                                                                                            }
+                                                                                        }
+                                                                                    </span>
+                                                                                </small>
+                                                                            </p>
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (testResult.outcome == "Passed")
+                                    {
+                                        <span class="glyphicon glyphicon-ok" style="color: #00FF00; font-size: x-large"></span>
+                                    }
+                                    else if (testResult.outcome == "Failed")
+                                    {
+                                        <span class="glyphicon glyphicon-remove" style="color: #FF0000; font-size: x-large"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="glyphicon glyphicon-warning-sign" style="color: #FFA500; font-size: x-large"></span>
+                                    }
+                                </td>
+                                <td>
+                                    <p>
+                                        <small><a target="_blank" href='https://user-envl.corp.microsoft.com/UMTroubleShooting/EventLog/GetLogs?CurrentEnvironment=ENVL&eventIds=&applicationNames=&correlationActivityId=CorrelationId&startDateTime=&endDateTime=&chkbBoxCritical=true&chkbBoxError=true&chkbBoxInformation=true&chkbBoxVerbose=true'></a></small>
+                                    </p>
+                                </td>
+                            </tr>
+                                                                                            }
+                    }
+                </table>
+            </div>
+                                                                                            }
+        <a href="#top">Back to top</a>
+
+    </div>
+</body>
+</html>
