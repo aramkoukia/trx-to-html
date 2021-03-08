@@ -380,7 +380,7 @@
 
         private TestRunTestSettingsExecutionAgentRule agentRuleField;
 
-        private byte parallelTestCountField;
+        private ushort parallelTestCountField;
 
         /// <remarks/>
         public TestRunTestSettingsExecutionTestTypeSpecific TestTypeSpecific
@@ -410,7 +410,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte parallelTestCount
+        public ushort parallelTestCount
         {
             get
             {
@@ -823,31 +823,31 @@
 
         private ushort passedField;
 
-        private byte errorField;
+        private ushort errorField;
 
-        private byte failedField;
+        private ushort failedField;
 
-        private byte timeoutField;
+        private ushort timeoutField;
 
-        private byte abortedField;
+        private ushort abortedField;
 
-        private byte inconclusiveField;
+        private ushort inconclusiveField;
 
-        private byte passedButRunAbortedField;
+        private ushort passedButRunAbortedField;
 
-        private byte notRunnableField;
+        private ushort notRunnableField;
 
-        private byte notExecutedField;
+        private ushort notExecutedField;
 
-        private byte disconnectedField;
+        private ushort disconnectedField;
 
-        private byte warningField;
+        private ushort warningField;
 
-        private byte completedField;
+        private ushort completedField;
 
-        private byte inProgressField;
+        private ushort inProgressField;
 
-        private byte pendingField;
+        private ushort pendingField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -893,7 +893,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte error
+        public ushort error
         {
             get
             {
@@ -907,7 +907,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte failed
+        public ushort failed
         {
             get
             {
@@ -921,7 +921,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte timeout
+        public ushort timeout
         {
             get
             {
@@ -935,7 +935,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte aborted
+        public ushort aborted
         {
             get
             {
@@ -949,7 +949,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte inconclusive
+        public ushort inconclusive
         {
             get
             {
@@ -963,7 +963,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte passedButRunAborted
+        public ushort passedButRunAborted
         {
             get
             {
@@ -977,7 +977,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte notRunnable
+        public ushort notRunnable
         {
             get
             {
@@ -991,7 +991,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte notExecuted
+        public ushort notExecuted
         {
             get
             {
@@ -1005,7 +1005,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte disconnected
+        public ushort disconnected
         {
             get
             {
@@ -1019,7 +1019,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte warning
+        public ushort warning
         {
             get
             {
@@ -1033,7 +1033,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte completed
+        public ushort completed
         {
             get
             {
@@ -1047,7 +1047,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte inProgress
+        public ushort inProgress
         {
             get
             {
@@ -1061,7 +1061,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte pending
+        public ushort pending
         {
             get
             {
